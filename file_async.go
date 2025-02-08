@@ -52,7 +52,7 @@ func (f *fileWriteASyncer) buildFilePattern(dir, subDir string) string {
 	parentDir := dir + fileSeparate + subDir
 	err := os.MkdirAll(parentDir, os.ModePerm)
 	checkErr(err)
-	return parentDir + fileSeparate + "%Y-%m-%d-%H:00.log"
+	return parentDir + fileSeparate + "%Y-%m-%d-%H-00.log"
 }
 
 func (f *fileWriteASyncer) buildFileLinkName(app, dir, subDir string) string {
