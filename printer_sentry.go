@@ -100,11 +100,11 @@ func (l *SentryPrinter) Log(level Level, msg string, data M) {
 	// event.Tags["sid"] = gUserID
 	event.Level = sentry.Level(level.String())
 	event.Message = msg
-	event.Extra = map[string]interface{}{
+	event.Contexts["extra"] = sentry.Context{
 		"time": time.Now().Unix(),
 	}
 	if data != nil {
-		event.Extra["Data"], _ = jsoniter.MarshalToString(data)
+		event.Contexts["extra"]["Data"], _ = jsoniter.MarshalToString(data)
 		if pid, ok := data["pid"]; ok {
 			pidStr := fmt.Sprint(pid)
 			event.User.ID = pidStr
