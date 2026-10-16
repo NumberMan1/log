@@ -20,6 +20,7 @@ func TestPanicLevel(t *testing.T) {
 }
 
 func TestFatalLevel(t *testing.T) {
+	defer ResetExitFunc()
 	l := NewLogger()
 	l.SetMaxLevel(FatalLevel)
 

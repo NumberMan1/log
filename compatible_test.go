@@ -16,8 +16,9 @@ func TestCompatibleLogger_Write(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	// Write uses named returns, so n defaults to 0; len(p) is not explicitly returned
-	_ = n
+	if n != len("test message") {
+		t.Fatalf("Write returned %d bytes", n)
+	}
 
 	logs := mp.GetLogs()
 	if len(logs) != 1 {
@@ -168,6 +169,7 @@ func TestCompatibleLogger_ImplementsWriter(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	// Write uses named returns, so n defaults to 0; the byte count is not explicitly returned
-	_ = n
+	if n != buf.Len() {
+		t.Fatalf("Write returned %d, want %d", n, buf.Len())
+	}
 }

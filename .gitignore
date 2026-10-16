@@ -1,3 +1,41 @@
-tmp_log/
-.idea
-.claude
+# IDE and editor settings
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Local assistant settings (shared repository guidance lives in AGENTS.md)
+.claude/
+.codex/
+
+# Local operating-system files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary output
+*.log
+/logs/
+/tmp_log/
+/tmp/
+
+# Go build, test and coverage artifacts
+/bin/
+/dist/
+*.test
+*.test.exe
+*.exe
+*.out
+/coverage/
+/coverage.html
+/coverage.xml
+/coverage.txt
+/coverprofile
+/__debug_bin*
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+!.env.sample

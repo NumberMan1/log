@@ -2,12 +2,37 @@ package serverlog
 
 import (
 	"runtime"
+	"strings"
 	"sync"
 )
 
 type frame struct {
 	File string
 	Line int
+}
+
+// Resolve caller frames by package, independent of wrapper depth.
+func applicationFrames() []*frame {
+	var pcs [32]uintptr
+	n := runtime.Callers(2, pcs[:])
+	frames := runtime.CallersFrames(pcs[:n])
+	var result []*frame
+	for {
+		f, more := frames.Next()
+		if (!strings.HasPrefix(f.Function, "github.com/NumberMan1/log.") || strings.HasSuffix(f.File, "_test.go")) && !strings.HasPrefix(f.Function, "runtime.") {
+			result = append(result, &frame{File: f.File, Line: f.Line})
+		}
+		if !more {
+			return result
+		}
+	}
+}
+
+func applicationFrame() *frame {
+	if frames := applicationFrames(); len(frames) > 0 {
+		return frames[0]
+	}
+	return &frame{}
 }
 
 // skip 从1开始，每增加一层就应该加1

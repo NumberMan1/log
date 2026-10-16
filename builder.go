@@ -1,18 +1,19 @@
 package serverlog
 
-import "os"
-
+// Builder 在启动阶段逐步构建一个独立 core，自身不支持并发修改。
+// 需要可恢复的初始化错误时使用 NewConfiguredLogger 或各输出器的 error 构造函数。
 type Builder struct {
 	l *L
 }
 
+// NewBuilder 创建没有输出器的构建器。
 func NewBuilder() *Builder {
 	return &Builder{
 		l: NewLogger(),
 	}
 }
 
-// 起到跟原来的Jsonlog一样的打印效果: 每个小时一个文件，日志内容会添加栈后包裹一层，适用于日志打印
+// AddJsonlogPrinter 注册按小时轮转、包含调用位置的 JSON 文件输出；失败时 panic。
 func (b *Builder) AddJsonlogPrinter(maxLevel Level, dir string) *Builder {
 	printer, err := NewJsonlogPrinter(dir)
 	if err != nil {
@@ -21,9 +22,7 @@ func (b *Builder) AddJsonlogPrinter(maxLevel Level, dir string) *Builder {
 	return b.AddCustomPrinter(maxLevel, printer)
 }
 
-// 将日志以json格式打印到文件, 适用于数据上报
-//
-// config 如果不做任何配置，打印效果将是: 每个小时一个文件，日志内容是将 data 序列化为json字符串输出
+// AddFilePrinter 注册可配置文件输出；默认只序列化 data，初始化失败时 panic。
 func (b *Builder) AddFilePrinter(maxLevel Level, config FilePrinterConfig) *Builder {
 	printer, err := NewFilePrinter(config)
 	if err != nil {
@@ -32,26 +31,25 @@ func (b *Builder) AddFilePrinter(maxLevel Level, config FilePrinterConfig) *Buil
 	return b.AddCustomPrinter(maxLevel, printer)
 }
 
-// 将日志以类似unix日志格式打印到终端，适用于调试时日志查看
+// AddConsolePrinter 注册终端输出器，并启用 maxLevel 及更高严重程度的等级。
 func (b *Builder) AddConsolePrinter(maxLevel Level, config ConsolePrinterConfig) *Builder {
 	printer := NewConsolePrinter(config)
 	return b.AddCustomPrinter(maxLevel, printer)
 }
 
-// dsn: sentry 的API地址, environment: sentry环境， 这两个参数主要是用于初始化Sentry时
+// AddSentryPrinter 注册独立 Sentry 输出器；不推导应用环境，非法配置时 panic。
 func (b *Builder) AddSentryPrinter(maxLevel Level, config SentryPrinterConfig) *Builder {
-	if config.Environment == "" {
-		config.Environment = os.Getenv("SERVER_TYPE")
-	}
 	printer := NewSentryPrinter(config)
 	return b.AddCustomPrinter(maxLevel, printer)
 }
 
+// AddCustomPrinter 注册调用方提供的输出器，其关闭责任转交给构建的 core。
 func (b *Builder) AddCustomPrinter(maxLevel Level, printer Printer) *Builder {
 	b.l.AddPrinter(LevelSwitchLte(maxLevel), printer)
 	return b
 }
 
+// Logger 返回构建中的同一个 core，不复制配置或转移到默认 logger。
 func (b *Builder) Logger() *L {
 	return b.l
 }

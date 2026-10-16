@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -14,6 +15,7 @@ const (
 )
 
 var bootInfoPrinter func(v ...any)
+var bootInfoMu sync.RWMutex
 
 func init() {
 	printer := log.New(os.Stderr, "BootLog: ", log.Ldate|log.Ltime).Println
@@ -29,14 +31,24 @@ func init() {
 	}
 }
 
+// SetBootInfoPrinter 并发安全地设置启动日志函数；nil 表示禁用。
+// 自定义函数可能被并发调用，应自行同步其状态。
 func SetBootInfoPrinter(f func(v ...any)) {
+	bootInfoMu.Lock()
+	defer bootInfoMu.Unlock()
 	bootInfoPrinter = f
 }
 
+// GetBootInfoPrinter 返回当前启动日志函数的快照，可能为 nil。
 func GetBootInfoPrinter() func(v ...any) {
+	bootInfoMu.RLock()
+	defer bootInfoMu.RUnlock()
 	return bootInfoPrinter
 }
 
+// BootInfo 使用独立启动输出函数记录消息，不要求默认 core 已初始化。
 func BootInfo(v ...any) {
-	bootInfoPrinter(v...)
+	if printer := GetBootInfoPrinter(); printer != nil {
+		printer(v...)
+	}
 }

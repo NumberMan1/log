@@ -1,6 +1,8 @@
 package fileutil
 
 import (
+	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -165,5 +167,53 @@ func TestFile_WriteManyLines(t *testing.T) {
 	data, _ := os.ReadFile(fullPath)
 	if len(data) == 0 {
 		t.Error("file should not be empty")
+	}
+}
+
+func TestNewFileAppendsExistingContent(t *testing.T) {
+	name := filepath.Join(t.TempDir(), "append.log")
+	if err := os.WriteFile(name, []byte("original\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	file, err := NewFile(name, 32)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Write("next\n"); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(name)
+	if err != nil || string(data) != "original\nnext\n" {
+		t.Fatalf("content=%q error=%v", data, err)
+	}
+	if err := file.Write("late"); err == nil {
+		t.Fatal("write after close accepted")
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal("second Close should be idempotent", err)
+	}
+}
+
+type failingWriter struct{ err error }
+
+func (w failingWriter) Write([]byte) (int, error) { return 0, w.err }
+func TestCloseClosesDescriptorEvenWhenFlushFails(t *testing.T) {
+	file, err := NewFile(filepath.Join(t.TempDir(), "failed.log"), 32)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeErr := errors.New("disk failure")
+	file.w = bufio.NewWriterSize(failingWriter{writeErr}, 32)
+	if err := file.Write("buffered"); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); !errors.Is(err, writeErr) {
+		t.Fatalf("missing flush error: %v", err)
+	}
+	if _, err := file.f.Stat(); !errors.Is(err, os.ErrClosed) {
+		t.Fatalf("descriptor leaked: %v", err)
 	}
 }
