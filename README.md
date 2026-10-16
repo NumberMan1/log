@@ -1,14 +1,30 @@
 # NumberMan1/log
 
+[![Go CI](https://github.com/NumberMan1/log/actions/workflows/go.yml/badge.svg)](https://github.com/NumberMan1/log/actions/workflows/go.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/NumberMan1/log.svg)](https://pkg.go.dev/github.com/NumberMan1/log)
+
 通用 Go 结构化日志库，模块路径为 `github.com/NumberMan1/log`，根包名为 `serverlog`。
 要求 Go 1.25 或以上版本，不依赖私有业务模块。
 
 库提供等级路由、字段 scope、标准 context、控制台／文件／Sentry 输出。
 业务字段、用户身份、部署地域、请求数据和追踪信息由调用方显式传入。
 
+## 安装
+
+在使用方的 Go module 中执行：
+
+```sh
+go get github.com/NumberMan1/log@latest
+```
+
+可将 `@latest` 替换为 [已有 tag](https://github.com/NumberMan1/log/tags) 以固定版本。
+API 见 [Go 文档](https://pkg.go.dev/github.com/NumberMan1/log)，升级前请阅读下方兼容说明与 [变更记录](CHANGELOG.md)。
+
 ## 快速开始
 
 ```go
+package main
+
 import (
     "context"
     "errors"
@@ -200,3 +216,12 @@ go vet ./...
 
 测试覆盖字段与 context 隔离、显式映射、业务字段透明传递、并发配置与关闭、文件故障与队列策略。
 真实 Sentry 服务和实际应用接入需要在对应环境联调。
+
+## 社区与许可
+
+- [获取帮助](SUPPORT.md) · [报告问题](https://github.com/NumberMan1/log/issues)
+- [贡献指南](CONTRIBUTING.md) · [行为准则](CODE_OF_CONDUCT.md)
+- [安全政策](SECURITY.md) · [维护者与发布流程](MAINTAINERS.md)
+- [变更记录](CHANGELOG.md) · [第三方依赖说明](THIRD_PARTY_NOTICES.md)
+
+项目原创内容采用 [MIT 许可证](LICENSE)，第三方依赖保留各自的版权与许可。

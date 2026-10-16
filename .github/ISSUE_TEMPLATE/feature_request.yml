@@ -1,0 +1,23 @@
+name: 功能建议
+description: 讨论新功能、接口改进或文档需求
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景与问题
+      description: 描述实际需求，以及现有接口为什么无法满足。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 可提供期望的 API、示例或文档结构。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案与兼容性
+      description: 说明已考虑的方案，以及是否影响现有调用方或引入新依赖。

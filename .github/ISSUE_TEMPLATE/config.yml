@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 安全漏洞报告
+    url: https://github.com/NumberMan1/log/security/policy
+    about: 请阅读安全政策并私下报告漏洞，不要在公开 Issue 中披露细节。
+  - name: Go API 文档
+    url: https://pkg.go.dev/github.com/NumberMan1/log
+    about: 查询导出类型、函数与包说明。

@@ -1,0 +1,43 @@
+name: Bug 报告
+description: 报告可以复现的功能缺陷（安全漏洞请使用私密报告）
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请搜索已有 Issue，并阅读 CONTRIBUTING.md。
+        安全漏洞请按 SECURITY.md 私下报告；所有示例和日志请先脱敏。
+  - type: input
+    id: version
+    attributes:
+      label: 项目版本或提交
+      description: 使用的 tag、伪版本或 commit SHA。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 请提供 go version、操作系统、架构；涉及 CGo 时附 CGO_ENABLED 和 C 编译器版本。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 最小复现
+      description: 提供可复制的代码、必要配置与执行步骤，避免依赖私有服务。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: 附上脱敏后的错误、日志或竞态检测输出。
+    validations:
+      required: true
