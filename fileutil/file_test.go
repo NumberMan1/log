@@ -205,6 +205,7 @@ func TestCloseClosesDescriptorEvenWhenFlushFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = file.f.Close() })
 	writeErr := errors.New("disk failure")
 	file.w = bufio.NewWriterSize(failingWriter{writeErr}, 32)
 	if err := file.Write("buffered"); err != nil {
@@ -213,7 +214,12 @@ func TestCloseClosesDescriptorEvenWhenFlushFails(t *testing.T) {
 	if err := file.Close(); !errors.Is(err, writeErr) {
 		t.Fatalf("missing flush error: %v", err)
 	}
-	if _, err := file.f.Stat(); !errors.Is(err, os.ErrClosed) {
-		t.Fatalf("descriptor leaked: %v", err)
+	// Windows 的 Stat 在关闭后可能返回 ERROR_INVALID_HANDLE，不能用它匹配 os.ErrClosed。
+	// 直接写底层 os.File，确保验证的是实际描述符关闭，而非包装层的 closed 标志。
+	if n, err := file.f.Write([]byte("late")); n != 0 || !errors.Is(err, os.ErrClosed) {
+		t.Fatalf("descriptor leaked: wrote %d bytes, error: %v", n, err)
+	}
+	if err := file.Close(); !errors.Is(err, writeErr) {
+		t.Fatalf("repeated Close lost flush error: %v", err)
 	}
 }
